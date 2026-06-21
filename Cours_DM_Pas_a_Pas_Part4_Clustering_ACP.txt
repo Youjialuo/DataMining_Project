@@ -1,0 +1,496 @@
+================================================================================
+  DATA MINING / FOUILLE DE DONNÉES — COURS COMPLET PAS À PAS
+  Partie 4 : Clustering (CM10) & Analyse en Composantes Principales (CM11)
+  CY Cergy Paris Université — Dr. Fatiha Bousbahi
+  Avec terminologie bilingue 中法对照
+================================================================================
+
+
+============================================================
+CM10 : CLUSTERING / 聚类分析
+      Classification Automatique / 自动分类
+============================================================
+
+10.1 POSITION DU PROBLÈME / 问题定位
+-----------------------------------------------------
+Clustering (聚类 / Segmentation / Classification automatique) :
+  Apprentissage non supervisé / 无监督学习
+  Objectif : Décomposer un ensemble de données en groupes (clusters)
+  目标：将数据集分解为有意义的组
+
+  Soient N instances avec n attributs → partition en k clusters
+  • k peut être donné ou "découvert"
+
+Clustering vs Classification / 聚类 vs 分类 :
+
+  ┌─────────────────────┬──────────────────────┐
+  │ Clustering / 聚类    │ Classification / 分类 │
+  ├─────────────────────┼──────────────────────┤
+  │ Pas de labels / 无标签│ Labels connus / 有标签│
+  │ Groupes proches     │ Règle d'attribution  │
+  │ Apprentissage        │ Apprentissage        │
+  │ non supervisé        │ supervisé            │
+  │ Structure découverte │ Règle appliquée      │
+  └─────────────────────┴──────────────────────┘
+
+10.2 APPLICATIONS DU CLUSTERING / 聚类应用
+-----------------------------------------------------
+  • Médecine : Localisation de tumeurs cérébrales / 脑肿瘤定位
+  • Environnement : Zones terrestres similaires / 相似土地区域
+  • Marketing : Segmentation clients / 客户细分
+  • Urbanisme : Groupes d'habitations / 住房群组
+  • Climat : Modèles d'atmosphère et océan / 大气海洋模式
+  • Biologie : Gènes de même fonction / 同功能基因
+  • Documents : Regroupement par sujet / 按主题聚类
+
+10.3 QUALITÉ DU CLUSTERING / 聚类质量
+-----------------------------------------------------
+Un bon clustering / 好的聚类 :
+  • Similarité intra-classe ÉLEVÉE / 类内相似度高
+  • Similarité inter-classe FAIBLE / 类间相似度低
+
+Dépend de :
+  • Mesure de similarité utilisée / 使用的相似度度量
+  • Implémentation / 实现方式
+
+10.4 FONCTIONS DE DISTANCE / 距离函数
+-----------------------------------------------------
+(Voir Chapitre 2, section 2.4 pour le détail / 详见第2章2.4节)
+
+Pour les attributs numériques / 数值属性 :
+  • Distance Euclidienne / 欧几里得距离 (h=2)
+  • Distance de Manhattan / 曼哈顿距离 (h=1)
+  • Distance de Minkowski / 闵可夫斯基距离 (générale)
+
+Distance entre clusters / 簇间距离 :
+  ① Single link (最短距离) : min{d(i,j) | i∈K₁, j∈K₂}
+  ② Complete link (最长距离) : max{d(i,j) | i∈K₁, j∈K₂}
+  ③ Average (平均距离) : avg{d(i,j) | i∈K₁, j∈K₂}
+  ④ Centroïde (质心距离) : dist(C₁, C₂)
+  ⑤ Médoïde (中心点距离) : dist(M₁, M₂)
+
+10.5 MÉTHODES DE CLUSTERING / 聚类方法分类
+-----------------------------------------------------
+  ① Partitionnement / 划分方法 (K-Means, K-Medoids/PAM)
+  ② Classification Hiérarchique / 层次聚类 (groupes disjoints)
+  ③ Nuées dynamiques / 动态聚类 (groupes disjoints)
+  ④ Classification pyramidale / 金字塔分类 (groupes non disjoints)
+
+Caractéristiques / 特征 :
+  • Apprentissage non supervisé / 无监督
+  • Toutes les variables ont le même statut / 所有变量同等地位
+  • Pas de variable dépendante / 无因变量
+  • Problème : interprétation des clusters / 聚类解读
+
+10.6 K-MEANS : MÉTHODE DES CENTRES MOBILES / K均值算法
+-----------------------------------------------------
+
+【10.6.1 Concept de Base / 基本概念】
+
+  Méthode de partitionnement :
+  Partitionner D (n objets) en k clusters → minimiser la somme
+  des distances au carré / 最小化平方距离和
+
+  D = Σⱼ₌₁ᵏ Σᵢ∈Cⱼ ||xᵢ − cⱼ||²
+
+  où cⱼ est le centroïde du cluster Cⱼ
+
+【10.6.2 Algorithme K-Means / K-Means算法步骤】
+
+  1. Choisir k centres initiaux (aléatoirement)
+     随机选择k个初始中心
+  2. Répéter :
+     a) Assigner chaque point au centre le plus proche
+        将每个点分配给最近的中心
+     b) Recalculer les centroïdes (moyenne des points du cluster)
+        重新计算质心
+  3. Jusqu'à convergence (centres inchangés)
+     直到收敛（中心不再变化）
+
+【10.6.3 Exemple Complet K-Means / K-Means完整示例】
+
+  Données unidimensionnelles A = {6, 7, 8, 11, 12, 13, 18, 20, 22}
+  k = 3 clusters
+  Centres initiaux : C1={6}, C2={7}, C3={8}
+
+  ═══ Itération 1 ═══
+  Distances au carré |x − centre|² :
+
+       6   7   8   11  12  13  18  20  22
+  C1:6 0   1   2   5   6   7   12  14  16
+  C2:7 1   0   1   4   5   6   11  13  15
+  C3:8 2   1   0   3   4   5   10  12  14
+
+  Assignation (minimum par colonne) :
+  a. C1 = {6}
+  b. C2 = {7}
+  c. C3 = {8, 11, 12, 13, 18, 20, 22}
+
+  Nouveaux centres :
+  a. Nouveau C1 = 6/1 = 6
+  b. Nouveau C2 = 7/1 = 7
+  c. Nouveau C3 = (8+11+12+13+18+20+22)/7 = 104/7 = 14.857
+
+  ═══ Itération 2 ═══
+  Distances avec C3 = 14.857 :
+       6      7      8      11     12     13     18     20     22
+  C1:6 0      1      2      5      6      7      12     14     16
+  C2:7 1      0      1      4      5      6      11     13     15
+  C3   8.857  7.857  6.857  3.857  2.857  1.857  3.143  5.143  7.143
+
+  Assignation :
+  a. C1 = {6}
+  b. C2 = {7, 8}
+  c. C3 = {11, 12, 13, 18, 20, 22}
+
+  Nouveaux centres :
+  a. C1 = 6/1 = 6
+  b. C2 = (7+8)/2 = 7.5
+  c. C3 = (11+12+13+18+20+22)/6 = 96/6 = 16
+
+  ═══ Itération 3 ═══
+  Assignation :
+  a. C1 = {6}
+  b. C2 = {7, 8, 11}
+  c. C3 = {12, 13, 18, 20, 22}
+
+  C1 = 6, C2 = (7+8+11)/3 = 8.667, C3 = (12+13+18+20+22)/5 = 85/5 = 17
+
+  ═══ Itération 4 ═══
+  Assignation :
+  a. C1 = {6, 7}
+  b. C2 = {8, 11, 12}
+  c. C3 = {13, 18, 20, 22}
+
+  C1 = (6+7)/2 = 6.5, C2 = (8+11+12)/3 = 10.33,
+  C3 = (13+18+20+22)/4 = 18.25
+
+  ═══ Itération 5 ═══
+  Assignation :
+  a. C1 = {6, 7, 8}
+  b. C2 = {11, 12, 13}
+  c. C3 = {18, 20, 22}
+
+  C1 = (6+7+8)/3 = 7, C2 = (11+12+13)/3 = 12, C3 = (18+20+22)/3 = 20
+
+  ═══ Itération 6 ═══
+  Assignation = identique à l'itération 5 → CONVERGÉ !
+
+  RÉSULTAT FINAL :
+  Cluster 1 (centre=7)  : {6, 7, 8}
+  Cluster 2 (centre=12) : {11, 12, 13}
+  Cluster 3 (centre=20) : {18, 20, 22}
+
+【10.6.4 Exemple K-Means 2D avec distance Euclidienne】
+
+  Points : A1(2,10), A2(2,5), A3(8,4), B1(5,8), B2(7,5),
+           B3(6,4), C1(1,2), C2(4,9)
+  k = 3, centres initiaux : A1, B1, C1
+
+  ═══ 1ère Itération ═══
+  Distances euclidiennes à A1(2,10), B1(5,8), C1(1,2) :
+
+              A1(2,10)   B1(5,8)    C1(1,2)
+  A1(2,10)    0          3.606      8.062
+  A2(2,5)     5          4.243      3.162
+  A3(8,4)     8.485      5.000      7.280
+  B1(5,8)     3.606      0          7.211
+  B2(7,5)     7.071      3.606      6.708
+  B3(6,4)     7.211      4.123      5.385
+  C1(1,2)     8.062      7.211      0
+  C2(4,9)     2.236      1.414      7.616
+
+  Clusters :
+  1. {A1, C2}                → centroïde (3, 9.5)
+  2. {B1, A3, B2, B3}        → centroïde (6.5, 5.25)
+  3. {C1, A2}                → centroïde (1.5, 3.5)
+
+  ═══ 2ème Itération ═══
+  Avec nouveaux centroïdes (3,9.5), (6.5,5.25), (1.5,3.5) :
+
+  Clusters :
+  1. {A1, B1, C2}            → centroïde (3.67, 9)
+  2. {A3, B2, B3}            → centroïde (7, 4.33)
+  3. {A2, C1}                → centroïde (1.5, 3.5)
+
+  ═══ 3ème Itération ═══
+  Avec centroïdes (3.67,9), (7,4.33), (1.5,3.5) :
+  Pas de changement → CONVERGÉ !
+
+  RÉSULTAT FINAL / 最终结果 :
+  Cluster 1 (centre=3.67,9) : {A1, B1, C2}
+  Cluster 2 (centre=7,4.33) : {A3, B2, B3}
+  Cluster 3 (centre=1.5,3.5): {A2, C1}
+
+【10.6.5 Avantages & Inconvénients / 优缺点】
+
+  Avantages / 优点 :
+  • Scalabilité / 可扩展 — traite de très grandes BD
+  • Complexité linéaire / 线性复杂度 O(n)
+  • Seuls les vecteurs des moyennes en mémoire centrale
+
+  Inconvénients / 缺点 :
+  • Lenteur relative (plusieurs passes)
+  • Minimum local / 局部最优
+  • Dépend du choix initial des centres / 依赖初始中心选择
+  • Peut dépendre de l'ordre des individus (MacQueen)
+
+10.7 CLUSTERING HIÉRARCHIQUE / 层次聚类
+-----------------------------------------------------
+
+【10.7.1 Principe / 原理】
+
+  Construire un arbre binaire qui fusionne successivement
+  des groupes de points similaires
+  构建二叉树，逐级合并相似点组
+
+  Avantage vs K-Means : nécessite UNIQUEMENT une mesure
+  de similarité (pas de k à spécifier) / 不需要指定k
+
+【10.7.2 CAH — Clustering Ascendant Hiérarchique / 层次凝聚聚类】
+       (Clustering Agglomératif / 凝聚聚类)
+
+  Algorithme / 算法 :
+  1. Chaque point = son propre cluster singleton
+     每个点自己的聚类
+  2. Répéter :
+     Fusionner les deux groupes les plus proches
+     合并最近的两个组
+  3. Jusqu'à : toutes les données dans un seul cluster
+     直到所有数据合并为一个聚类
+
+  Dendrogramme (树状图 / Dendrogramme) :
+  • Arbre binaire décrivant les partitions imbriquées
+  • Le clustering est obtenu en coupant le dendrogramme
+    au niveau souhaité / 在期望的水平切割树状图
+  • Chaque composante connexe forme un cluster
+
+  Exemple de CAH avec données :
+    Étape 1 : Chaque point singleton
+    Étape 2 : Fusionner les 2 plus proches
+    Étape 3 : Recalculer la matrice de distance
+    ...continuer jusqu'à un seul cluster
+    Étape finale : Couper le dendrogramme pour obtenir
+                   le nombre désiré de clusters
+
+【10.7.3 Distance entre groupes / 组间距离】
+
+  Méthode de Ward / Ward方法 :
+    Minimise l'augmentation de l'inertie intra-classe
+
+10.8 SOMMAIRE CLUSTERING / 聚类总结
+-----------------------------------------------------
+  • Partitionnement : K-Means (centroïdes), K-Medoids/PAM
+  • Hiérarchique : CAH (agglomératif), divisif
+  • La qualité dépend de la mesure de similarité
+  • K-Means : linéaire, scalable, mais minimum local
+
+
+============================================================
+CM11 : ANALYSE EN COMPOSANTES PRINCIPALES (ACP/PCA)
+       主成分分析
+============================================================
+
+11.1 INTRODUCTION / 引言
+-----------------------------------------------------
+Objectif / 目标 : Explorer des données numériques
+  • Quels individus (observations) sont similaires ?
+  • Quelles variables sont liées ?
+
+ACP = PCA (Principal Component Analysis)
+  → Méthode d'analyse de données multivariées la plus utilisée
+    最常用的多元数据分析方法
+
+  • Permet d'explorer des jeux de données multidimensionnels
+    constitués de variables quantitatives
+  • Apprentissage NON supervisé / 无监督学习
+
+11.2 PRINCIPE DE L'ACP / PCA原理
+-----------------------------------------------------
+  « Représenter au mieux dans un espace plus réduit des
+    observations issues d'un espace plus grand »
+
+  → Simplification de la réalité / 简化现实
+  → Concentration d'information diluée / 浓缩稀释信息
+  → Description du maximum de variabilité dans un espace réduit
+    "在降维空间中描述最大变异性"
+
+11.3 DOMAINES D'APPLICATION / 应用领域
+-----------------------------------------------------
+  • Réduction du nombre de variables explicatives / 减少解释变量
+  • Obtention de nouvelles variables non corrélées / 获得无关新变量
+  • Imagerie : compression, reconnaissance faciale / 图像压缩与人脸识别
+  • Biostatistique, marketing, sciences sociales / 生物统计、营销、社科
+
+11.4 CONCEPTS DE BASE / 基本概念
+-----------------------------------------------------
+
+【11.4.1 Matrice de Données / 数据矩阵】
+
+  X = (xᵢⱼ)n×p : n individus décrits sur p variables
+  • xᵢ : ligne i de X (description du iᵉ individu)
+  • xⱼ : colonne j de X (description de la jᵉ variable)
+
+  Exemple : 6 patients décrits sur 3 variables
+    (pression diastolique, pression systolique, cholestérol)
+
+  Nuage d'individus : n points dans ℝᵖ (chaque individu = 1 point)
+
+【11.4.2 Centrage et Réduction / 中心化与标准化】
+
+  a) Centrage (中心化 / Centrage) :
+     yᵢⱼ = xᵢⱼ − x̄ⱼ
+     → Colonnes de moyenne nulle
+     → Translation du nuage (ne change PAS les distances !)
+
+  b) Centrage-Réduction (中心化-标准化) :
+     zᵢⱼ = (xᵢⱼ − x̄ⱼ) / σⱼ
+     → Colonnes de moyenne 0 ET variance 1
+     → Translation + normalisation (CHANGE les distances)
+
+     où : x̄ⱼ = (1/n)Σᵢ xᵢⱼ (moyenne)
+          σⱼ² = (1/n)Σᵢ (xᵢⱼ − x̄ⱼ)² (variance)
+
+  ⚠️ Important / 重要 :
+    • Centrer ne change pas les distances entre individus
+    • Centrer-réduire CHANGE les distances
+    • Normaliser donne la même importance à toutes les variables
+      标准化使所有变量在距离计算中具有相同权重
+
+【11.4.3 Malédiction de la Dimension / 维度灾难】
+
+  « Au fur et à mesure que le nombre de variables augmente,
+    la quantité de données nécessaire pour généraliser
+    augmente de façon exponentielle. »
+  — Charles Isbell, Georgia Tech
+
+  Deux options pour réduire / 两种降维方式 :
+  ① Élimination directe / 直接删除变量
+  ② Extraction de variables / 变量提取 (ACP fait cela)
+
+11.5 ALGORITHME ACP EN 6 ÉTAPES / PCA六步算法
+-----------------------------------------------------
+
+Entrée : Dataset D avec N points et p dimensions
+Sortie : Données projetées en r ≤ p dimensions
+
+Étape 1 : Calculer la moyenne μ et centrer les données
+          计算均值并中心化
+          x_new = (xᵢ − μ)
+
+Étape 2 : Calculer la matrice de covariance de D centré
+          计算协方差矩阵
+          Cov ∈ ℝᵖˣᵖ
+
+Étape 3 : Calculer les valeurs propres λ et vecteurs propres v
+          计算特征值和特征向量
+          Résoudre : det(Cov − λI) = 0
+
+Étape 4 : Sélectionner les r plus grandes valeurs propres
+          选择最大r个特征值
+          保留其对应的特征向量
+
+Étape 5 : Stocker les top r vecteurs propres dans B (p × r)
+          将前r个特征向量存入矩阵B
+
+Étape 6 : Projeter les données / 投影数据
+          x_new = Bᵀ (x_old − μ)
+          每个x_new ∈ ℝʳ
+
+11.6 RAPPEL : VALEURS ET VECTEURS PROPRES / 特征值与特征向量回顾
+-----------------------------------------------------
+
+  Pour une matrice carrée A(n×n) :
+  Av = λv
+    où v ≠ 0 est le vecteur propre / 特征向量
+         λ est la valeur propre / 特征值
+
+  Exemple :
+    A = [2 3; 2 1], v = [3; 2]
+    Av = [12; 8] = 4 × [3; 2]
+    → λ = 4 est une valeur propre, v = [3; 2] est son vecteur propre
+
+  Pour trouver λ et v :
+  1. Résoudre det(A − λI) = 0 → polynôme de degré n
+  2. Racines du polynôme = valeurs propres λ
+  3. Pour chaque λ, résoudre (A − λI)v = 0 → vecteur propre
+
+11.7 COMPOSANTES PRINCIPALES / 主成分
+-----------------------------------------------------
+  • CP1 (PC1) : Direction de la plus grande variance / 最大方差方向
+    → Le vecteur propre de la plus grande valeur propre
+  • CP2 (PC2) : Direction orthogonale à CP1 avec variance restante max
+    → Deuxième plus grande valeur propre
+  • CP3, CP4, ... : De même
+
+  En général, seules quelques directions capturent l'essentiel
+  de la variabilité / 通常只有少数方向捕获大部分变异
+
+11.8 EXEMPLE COMPLET D'ACP / 完整PCA示例
+-----------------------------------------------------
+
+  Données d'origine :
+    X = {19, 39, 30, 30, 15, 15, 15, 30}
+    Y = {63, 74, 87, 23, 35, 43, 32, 73}
+
+  Étape 1 : Centrer
+    μₓ = 24.1, μᵧ = 53.75
+    X' = X − 24.1 = {−5.1, 14.9, 5.9, 5.9, −9.1, −9.1, −9.1, 5.9}
+    Y' = Y − 53.75 = {9.25, 20.25, 33.25, −30.75, −18.75, −10.75,
+                       −21.75, 19.25}
+
+  Étape 2 : Matrice de covariance de (X', Y')
+            [85.8   121.3]
+    A = Cov = [121.3  551.1]
+
+  Étape 3 : Calculer valeurs propres et vecteurs propres
+    λ = {56.1, 580.8}
+    v = [−0.9712, 0.2381]    [0.2381, 0.9712]
+
+  Étape 4 : Choisir la plus grande λ
+    λ₁ = 580.8 (la plus grande variance)
+    v₁ = [0.2381, 0.9712]ᵀ = B (matrice de projection)
+
+  Étape 5 : Projeter
+    x_new = 0.2381·X' + 0.9712·Y'
+
+    Résultats (coordonnées CP1) :
+    {7.8, 23.2, 33.7, −28.5, −20.4, −12.6, −23.3, 20.1}
+
+  Ces 8 valeurs 1D capturent le maximum de variance des données 2D !
+
+11.9 RECONSTRUCTION / 重建原始数据
+-----------------------------------------------------
+  Pour reconstruire les données centrées :
+    (x', y') = X_new × Vᵀ
+  où V contient TOUS les vecteurs propres (avant élimination)
+
+  La reconstruction est approximative si on a éliminé des CPs
+
+11.10 BONNES PRATIQUES ACP / PCA使用建议
+-----------------------------------------------------
+  ✓ ACP est très utile pour les datasets larges / 大型数据集
+  ✓ Simple à appliquer / 应用简单
+  ✓ Très souple — applicable à tout type de données quantitatives
+    非常灵活 — 适用于任何定量数据
+
+  ✗ Ne pas réduire les dimensions pour éviter le surapprentissage
+    不要为了避免过拟合而降维
+  ✗ Ne pas appliquer ACP aveuglément avant le ML
+    不要在机器学习前盲目应用PCA
+  ✗ Considérer ACP comme alternative si données d'origine
+    ne fonctionnent pas bien
+    当原始数据效果不好时才考虑PCA
+
+11.11 SOMMAIRE / 总结
+-----------------------------------------------------
+  • ACP = Réduction de dimension / 降维
+  • Transformation linéaire des données / 数据线性变换
+  • Nouvelles variables = Composantes Principales / 主成分
+  • CP1 capte le max de variance / 捕获最大方差
+  • Étapes : centrer → covariance → λ/v propres → sélectionner → projeter
+
+================================================================================
+  Fin de la Partie 4 — CM10 & CM11
+  Suite : Partie 5 — Exercices TD/TP corrigés
+================================================================================

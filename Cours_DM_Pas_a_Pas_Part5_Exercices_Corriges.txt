@@ -1,0 +1,409 @@
+================================================================================
+  DATA MINING / FOUILLE DE DONNÉES — COURS COMPLET PAS À PAS
+  Partie 5 : Exercices TD/TP Corrigés / 练习与答案
+  CY Cergy Paris Université — Dr. Fatiha Bousbahi
+  Avec terminologie bilingue 中法对照
+================================================================================
+
+
+============================================================
+TD CHAPITRE 2 : STATISTIQUES DESCRIPTIVES / 描述统计练习
+============================================================
+
+EXERCICE 1 : BOXPLOT (数据集1) / 箱线图
+-----------------------------------------------------
+Données : {1, 1, 3, 5, 6, 6, 7, 8, 12, 13, 15}
+
+  n = 11 (impair)
+  Min = 1
+  Q1 = position (11+1)/4 = 3ᵉ → Q1 = 3
+  Médiane (Q2) = position 2×(11+1)/4 = 6ᵉ → Médiane = 6
+  Q3 = position 3×(11+1)/4 = 9ᵉ → Q3 = 12
+  Max = 15
+  EI = Q3 − Q1 = 12 − 3 = 9
+  1.5×EI = 13.5
+
+  Bornes pour outliers :
+    Inférieure : Q1 − 1.5×EI = 3 − 13.5 = −10.5
+    Supérieure : Q3 + 1.5×EI = 12 + 13.5 = 25.5
+  → Aucun outlier (toutes les valeurs dans [−10.5, 25.5])
+
+  Five-Number Summary : {1, 3, 6, 12, 15}
+
+
+EXERCICE 2 : BOXPLOT (数据集2) / 箱线图
+-----------------------------------------------------
+Données : {2, 3, 3, 6, 7, 7, 7, 9, 13, 15, 30}
+
+  n = 11
+  Min = 2
+  Q1 = 3
+  Médiane = position 6ᵉ = 7
+  Q3 = 13
+  Max = 30
+  EI = 13 − 3 = 10
+  1.5×EI = 15
+
+  Bornes :
+    Inférieure : 3 − 15 = −12
+    Supérieure : 13 + 15 = 28
+
+  → 30 > 28 : OUTLIER ! 30 est une valeur aberrante
+
+  Boxplot : moustache supérieure s'arrête à 15
+            point outlier à 30
+
+  Five-Number Summary : {2, 3, 7, 13, 30}
+  其中30为异常值
+
+
+EXERCICE 3 (Q2) : NOTE / 成绩统计
+-----------------------------------------------------
+Données : {4, 5, 9, 11, 12, 13, 13, 13, 13, 14, 15, 15, 16, 17, 18, 18, 19, 20}
+
+  n = 18 (pair)
+
+  (a) Moyenne et Médiane / 均值和中位数 :
+     Σ = 4+5+9+11+12+13+13+13+13+14+15+15+16+17+18+18+19+20 = 245
+     Moyenne = 245/18 ≈ 13.61
+     Médiane = moyenne(9ᵉ, 10ᵉ) = moyenne(13, 14) = 13.5
+
+  (b) Mode / 众数 :
+     Valeur 13 apparaît 4 fois → Mode = 13
+     C'est UNIMODALE / 单峰 (une seule valeur dominante)
+
+  (c) Midrange / 中列数 :
+     Midrange = (Min + Max)/2 = (4+20)/2 = 12
+
+  (d) Quartiles / 四分位数 :
+     Q1 = médiane de la 1ʳᵉ moitié (9 premières) = 5ᵉ valeur = 12
+     Q3 = médiane de la 2ᵉ moitié (9 dernières) = 14ᵉ valeur = 17
+
+  (e) Five-Number Summary / 五数概括 :
+     {Min=4, Q1=12, Médiane=13.5, Q3=17, Max=20}
+
+
+EXERCICE 4 (Q3) : ÂGE / 年龄统计
+-----------------------------------------------------
+Données : {13, 15, 16, 16, 19, 20, 20, 21, 22, 22, 25, 25, 25, 25,
+           30, 33, 33, 35, 35, 35, 35, 36, 40, 45, 46, 52, 70}
+
+  n = 27 (impair)
+
+  (a) Moyenne et Médiane :
+     Σ = 13+15+16+16+19+20+20+21+22+22+25+25+25+25
+         +30+33+33+35+35+35+35+36+40+45+46+52+70 = 809
+     Moyenne = 809/27 ≈ 29.96
+
+     Médiane = position (27+1)/2 = 14ᵉ valeur
+     Données ordonnées, 14ᵉ = 25
+     Médiane = 25
+
+  (b) Mode / 众数 :
+     25 apparaît 4 fois, 35 apparaît 4 fois
+     → BIMODAL / 双峰 : Mode = 25 et 35
+
+  (c) Midrange / 中列数 :
+     Midrange = (13+70)/2 = 41.5
+
+  (d) Quartiles / 四分位数 :
+     Q1 = médiane des 13 premières valeurs = 7ᵉ = 20
+     Q3 = médiane des 13 dernières valeurs = 21ᵉ = 35
+
+  (e) Five-Number Summary :
+     {13, 20, 25, 35, 70}
+
+  (f) Boxplot / 箱线图 :
+     EI = 35 − 20 = 15
+     1.5×EI = 22.5
+     Borne supérieure : 35 + 22.5 = 57.5
+     70 > 57.5 → OUTLIER !
+     Moustache supérieure à 52 (max non-outlier)
+
+
+EXERCICE 5 (Q4) : ÂGE ET GRAISSE / 年龄与体脂
+-----------------------------------------------------
+Données : 18 adultes, variables âge et graisse corporelle
+
+  Âge : {23,23,27,27,39,41,47,49,50,52,54,54,56,57,58,58,60,61}
+  Graisse : {9.5,26.5,7.8,17.8,31.4,25.9,27.4,27.2,31.2,34.6,42.5,
+             28.8,33.4,30.2,34.1,32.9,41.2,35.7}
+
+  (a) Statistiques descriptives :
+     Âge：
+       Moyenne = 836/18 ≈ 46.44
+       Médiane = moyenne(9ᵉ,10ᵉ) = moyenne(50,52) = 51
+       Écart-type σ = √(Σ(x−x̄)²/n)
+       Σ(x−x̄)² ≈ 2862.28 → σ ≈ 12.61
+
+     Graisse：
+       Moyenne ≈ 518.1/18 ≈ 28.78
+       Médiane = moyenne(9ᵉ,10ᵉ) = moyenne(30.2,31.2) = 30.7
+       Σ(x−x̄)² ≈ 1378.6 → σ ≈ 8.75
+
+  (b) Boxplot :
+     Âge : Min=23, Q1≈29.5, Méd=51, Q3≈57.5, Max=61
+     Graisse : Min=7.8, Q1≈25.9, Méd=30.7, Q3≈34.6, Max=42.5
+
+  (c) Scatter plot & Q-Q plot :
+     → Construction graphique (voir les paires de valeurs)
+
+
+EXERCICE 6 (Q5) : DISTANCE / 距离计算
+-----------------------------------------------------
+Objets : (22, 1, 42, 10) et (20, 0, 36, 8)
+
+  (a) Distance Euclidienne / 欧几里得距离 :
+     d = √[(22−20)² + (1−0)² + (42−36)² + (10−8)²]
+       = √[4 + 1 + 36 + 4]
+       = √45
+       ≈ 6.71
+
+  (b) Distance de Manhattan / 曼哈顿距离 :
+     d = |22−20| + |1−0| + |42−36| + |10−8|
+       = 2 + 1 + 6 + 2
+       = 11
+
+  (c) Distance de Minkowski (h=3) / 闵可夫斯基距离 :
+     d = ∛(|22−20|³ + |1−0|³ + |42−36|³ + |10−8|³)
+       = ∛(8 + 1 + 216 + 8)
+       = ∛(233)
+       ≈ 6.15
+
+
+============================================================
+TD CLUSTERING : K-MEANS SOLUTION COMPLÈTE / K-Means完整解答
+============================================================
+
+EXERCICE 1 : K-MEANS 1D / 一维K-Means
+-----------------------------------------------------
+Déjà détaillé dans la Partie 4, section 10.6.3
+Résultat final :
+  Cluster 1 (centre=7)  : {6, 7, 8}
+  Cluster 2 (centre=12) : {11, 12, 13}
+  Cluster 3 (centre=20) : {18, 20, 22}
+  Convergence en 6 itérations
+
+
+EXERCICE 2 : K-MEANS 2D / 二维K-Means
+-----------------------------------------------------
+Points : A1(2,10), A2(2,5), A3(8,4), B1(5,8), B2(7,5), B3(6,4),
+         C1(1,2), C2(4,9)
+Centres initiaux : A1(2,10), B1(5,8), C1(1,2)
+
+Déjà détaillé dans la Partie 4, section 10.6.4
+Résultat final :
+  Cluster 1 (centre 3.67, 9)  : {A1, B1, C2}
+  Cluster 2 (centre 7, 4.33)  : {A3, B2, B3}
+  Cluster 3 (centre 1.5, 3.5) : {A2, C1}
+
+
+============================================================
+TD CLUSTERING : CAH (Classification Ascendante Hiérarchique)
+============================================================
+
+QUESTION 1 : DENDROGRAMME / 树状图绘制
+-----------------------------------------------------
+Étant donnés les clusters imbriqués dans la figure, dessiner le
+dendrogramme correspondant.
+
+  Principe :
+  • Chaque fusion correspond à une jonction dans l'arbre
+  • La hauteur de la jonction = distance de fusion
+  • L'ordre horizontal des feuilles peut varier
+
+QUESTION 2 : NOMBRE DE CLUSTERS / 聚类数量
+-----------------------------------------------------
+Avec un seuil de coupure à 2.5 cm sur le dendrogramme :
+  • Tracer une ligne horizontale à distance = 2.5
+  • Compter les intersections → nombre de clusters
+  • Chaque intersection = 1 cluster
+
+QUESTION 3 : CAH AVEC MÉTHODE DE WARD / 用Ward方法的CAH
+-----------------------------------------------------
+Soit X une matrice de données dans ℝ² :
+
+  Matrice X (à lire depuis le sujet) :
+  Appliquer l'algorithme CAH avec la distance de Ward.
+
+  Méthode de Ward :
+  • Fusionne les clusters qui minimisent l'augmentation
+    de l'inertie intra-classe
+  • ΔWard(A,B) = (|A|·|B|)/(|A|+|B|) · ||μA − μB||²
+
+  Étapes :
+  1. Chaque point = cluster singleton → matrice de distance
+  2. Trouver la distance minimale → fusionner
+  3. Mettre à jour la matrice de distance
+  4. Répéter jusqu'à un seul cluster
+  5. Construire le dendrogramme
+
+
+============================================================
+TP CLUSTERING & ACP / 聚类与PCA实验
+============================================================
+
+Objectif : Pratiquer K-means, CAH et ACP sur Scikit-learn
+
+Dataset : voit_dataset.xls (28 véhicules, 5 variables quantitatives)
+  Colonnes : mpg, displacement, horsepower, weight, acceleration, origin
+
+  Exemple des 5 premières lignes :
+  mpg  displacement  horsepower  weight  acceleration  origin
+  35   72            69          1613    18           japanese
+  31   76            52          1649    17           japanese
+  39   79            58          1755    17           japanese
+  35   81            60          1760    16           japanese
+  31   71            65          1773    19           japanese
+
+Étapes du TP :
+
+1) K-MEANS :
+   • Standardiser les données (StandardScaler)
+     标准化数据
+   • Choisir k (méthode du coude / elbow method)
+     用肘部法则选择k
+   • Appliquer K-Means
+   • Visualiser les clusters (avec ACP pour 2D)
+     用PCA降维到2D后可视化
+   • Interpréter les clusters / 解读聚类结果
+
+2) CAH (Clustering Hiérarchique) :
+   • Choisir une mesure de distance (euclidienne)
+   • Choisir un linkage (Ward)
+   • Construire et visualiser le dendrogramme
+   • Couper pour obtenir le nombre de clusters souhaité
+   • Comparer avec les résultats K-Means
+
+3) ACP (Analyse en Composantes Principales) :
+   • Standardiser les données
+   • Appliquer PCA (sklearn.decomposition.PCA)
+   • Analyser la variance expliquée par chaque composante
+     (scree plot / 碎石图)
+   • Visualiser le cercle de corrélation / 相关性圆
+   • Projeter les individus sur les 2 premières CPs
+   • Interpréter les axes / 解读主轴
+
+Code Scikit-learn de référence :
+
+  from sklearn.preprocessing import StandardScaler
+  from sklearn.cluster import KMeans
+  from sklearn.decomposition import PCA
+  from scipy.cluster.hierarchy import dendrogram, linkage
+
+  # Standardisation
+  scaler = StandardScaler()
+  X_scaled = scaler.fit_transform(X)
+
+  # K-Means
+  kmeans = KMeans(n_clusters=3, random_state=42)
+  clusters = kmeans.fit_predict(X_scaled)
+
+  # ACP
+  pca = PCA()
+  X_pca = pca.fit_transform(X_scaled)
+  print(pca.explained_variance_ratio_)  # variance expliquée
+
+  # CAH
+  Z = linkage(X_scaled, method='ward')
+  dendrogram(Z)
+
+
+============================================================
+FORMULAIRE RAPIDE / 公式速查卡
+============================================================
+
+【Statistiques Descriptives / 描述统计】
+  Moyenne : x̄ = (1/n) Σ xᵢ
+  Variance : σ² = (1/n) Σ (xᵢ − μ)²
+  Écart-type : σ = √(σ²)
+  EI (IQR) : Q3 − Q1
+  Outlier : x < Q1−1.5×EI  ou  x > Q3+1.5×EI
+
+【Distances / 距离】
+  Manhattan : d = Σ |xᵢ − yᵢ|
+  Euclidienne : d = √(Σ (xᵢ − yᵢ)²)
+  Minkowski : d = (Σ |xᵢ − yᵢ|ʰ)¹/ʰ
+
+【Similarité / 相似度】
+  Cosinus : cos(x,y) = (x•y) / (||x||·||y||)
+  Jaccard (asym. binaire) : sim = q/(q+r+s)
+
+【Règles d'Association / 关联规则】
+  Support(X→Y) = count(XY)/|D|
+  Confiance(X→Y) = support(XY)/support(X)
+  Lift = support(XY) / (support(X)×support(Y))
+
+【Corrélation / 相关性】
+  r(A,B) = Σ(aᵢ−Ā)(bᵢ−B̄) / (n·σA·σB)
+  χ² = Σ (Observed−Expected)²/Expected
+  Cov(A,B) = (1/n) Σ (aᵢ−Ā)(bᵢ−B̄)
+
+【Normalisation / 归一化】
+  Min-Max : v' = (v−min)/(max−min) × (Nmax−Nmin) + Nmin
+  Z-Score : v' = (v−μ)/σ
+  Décimale : v' = v/10ʲ
+
+【ACP / PCA】
+  ① Centrer : x' = x − μ
+  ② Covariance : Cov = (1/n) X'ᵀX'
+  ③ det(Cov − λI) = 0 → λ (valeurs propres)
+  ④ (Cov − λI)v = 0 → v (vecteurs propres)
+  ⑤ Projection : X_new = Bᵀ(x − μ)
+     où B = [v₁, v₂, ..., vᵣ] (top r vecteurs propres)
+
+【K-Means】
+  Objectif : min Σⱼ Σᵢ∈Cⱼ ||xᵢ − cⱼ||²
+  Centroïde : cⱼ = (1/|Cⱼ|) Σᵢ∈Cⱼ xᵢ
+
+================================================================================
+  Fin de la Partie 5 — Exercices TD/TP corrigés
+================================================================================
+
+
+================================================================================
+  TABLE DES MATIÈRES COMPLÈTE DU COURS DATA MINING
+================================================================================
+
+  PARTIE 1 (Cours_DM_Pas_a_Pas_Part1_Intro_Donnees.txt)
+    Chapitre 1 : Introduction au Data Mining / 数据挖掘简介
+    Chapitre 2 : Apprendre à connaître vos données / 了解数据
+      — Types d'attributs, Statistiques descriptives, Visualisation,
+        Mesures de similarité/dissimilarité
+      — Activités Self-Study : nominal, binaire, ordinal, mixte, cosinus
+
+  PARTIE 2 (Cours_DM_Pas_a_Pas_Part2_Pretraitement.txt)
+    Chapitre 3 : Prétraitement des données / 数据预处理
+      — Nettoyage (valeurs manquantes, bruit, outliers)
+      — Intégration (χ², corrélation, covariance)
+      — Réduction (dimensionnalité, numérosité, compression)
+      — Transformation (normalisation, discrétisation, hiérarchies)
+
+  PARTIE 3 (Cours_DM_Pas_a_Pas_Part3_MotifsFrequents.txt)
+    Chapitre 4 : Motifs Fréquents & Règles d'Association
+      — Concepts de base : support, confiance, itemsets
+      — Algorithme Apriori (génération et test de candidats)
+      — Algorithme FP-Growth (FP-tree, sans candidats)
+      — ECLAT (format vertical)
+      — Mesure Lift
+
+  PARTIE 4 (Cours_DM_Pas_a_Pas_Part4_Clustering_ACP.txt)
+    CM10 : Clustering / 聚类分析
+      — K-Means (algorithme, exemples 1D et 2D complets)
+      — CAH (clustering hiérarchique, dendrogramme)
+    CM11 : Analyse en Composantes Principales (ACP/PCA)
+      — 6 étapes de l'algorithme
+      — Exemple complet avec calculs
+      — Valeurs propres et vecteurs propres
+
+  PARTIE 5 (Cours_DM_Pas_a_Pas_Part5_Exercices_Corriges.txt)
+      — TD Chapitre 2 : Boxplot, statistiques, distances
+      — TD Clustering K-Means : solutions complètes
+      — TD Clustering CAH : dendrogramme, Ward
+      — TP Clustering & ACP : Scikit-learn
+      — Formulaire rapide / 公式速查卡
+
+================================================================================
+  Fin du cours complet de Data Mining
+  中法对照数据挖掘完整教程 — CY Cergy Paris Université
+================================================================================

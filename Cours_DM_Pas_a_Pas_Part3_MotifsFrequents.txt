@@ -1,0 +1,384 @@
+================================================================================
+  DATA MINING / FOUILLE DE DONNÉES — COURS COMPLET PAS À PAS
+  Partie 3 : Motifs Fréquents & Règles d'Association (Chapitre 4)
+  CY Cergy Paris Université — Dr. Fatiha Bousbahi
+  Avec terminologie bilingue 中法对照
+================================================================================
+
+
+============================================================
+CHAPITRE 4-I : MOTIFS FRÉQUENTS ET RÈGLES D'ASSOCIATION
+             频繁模式与关联规则
+             Algorithme Apriori / Apriori算法
+============================================================
+
+4.1 QU'EST-CE QUE L'ANALYSE DES MOTIFS FRÉQUENTS ?
+    什么是频繁模式分析？
+-----------------------------------------------------
+Motif fréquent (频繁模式 / Motif fréquent) :
+  Motif (itemset, sous-séquence, ou sous-structure) qui apparaît
+  fréquemment dans un ensemble de données
+
+Proposé par Agrawal, Imielinski & Swami (1993)
+
+Motivation / 动机 :
+  • Quels produits sont souvent achetés ensemble ?
+    哪些产品经常一起购买？— 可乐和尿布？
+  • Quels achats après l'achat d'un PC ?
+  • Quels types d'ADN sensibles à ce médicament ?
+
+Applications / 应用 :
+  • Analyse du panier de marché (购物篮分析 / Market Basket Analysis)
+  • Analyse ADN / DNA分析
+  • Analyse du climat / 气候分析
+
+4.2 CONCEPTS DE BASE / 基本概念
+-----------------------------------------------------
+
+【4.2.1 Données Transactionnelles / 事务数据】
+
+  Item (项) : article dans un panier, ou paire attribut-valeur
+  Transaction (事务) : ensemble d'items achetés, identifiée par TID
+  Dataset transactionnel (事务数据集) : ensemble de transactions
+
+  Représentation : Tableau de transactions → Tableau binaire 0/1
+    事务表 → 0/1二进制表
+    Codage disjonctif complet / 完全析取编码
+
+【4.2.2 Itemset et Support / 项集和支持度】
+
+  Itemset (项集) : ensemble d'items
+    Ex: {lait, pain, céréale}
+    k-itemset : itemset avec k items / k项集
+
+  Largeur de transaction (事务宽度) : nombre d'items dans la transaction
+
+  Support absolu (绝对支持度) : fréquence d'occurrence
+    Ex: sup({Coca, Couche}) = 3
+
+  Support relatif (相对支持度) : fraction de transactions
+    Ex: s({Coca, Couche}) = 3/5 = 60%
+
+  Motif fréquent (频繁模式) : itemset avec support ≥ minsup
+
+【4.2.3 Règles d'Association / 关联规则】
+
+  Règle d'association (关联规则) : X ⇒ Y
+    où X et Y sont deux itemsets disjoints
+    X = antécédent (前件), Y = conséquent (后件)
+
+  ⚠️ IMPORTANT : X ⇒ Y ne signifie PAS que X cause Y !
+    Les règles d'association ne représentent aucune causalité
+    关联规则不代表因果关系 !
+
+  Support (支持度) : P(X ∪ Y) = count(XY) / |D|
+  Confiance (置信度 / Confiance) : P(Y|X) = support(XY) / support(X)
+
+  Règle forte (强规则) :
+    Support ≥ minsup  ET  Confiance ≥ minconf
+
+  Exemple avec minsup=50%, minconf=50% :
+    Tid  Items
+    10   Coca, Noix, Couche
+    20   Coca, Café, Couche
+    30   Coca, Couche, Oeufs
+    40   Noix, Oeufs, Lait
+    50   Noix, Café, Couche, Oeufs, Lait
+
+    {Coca} : 3/5 = 60%    {Noix} : 3/5 = 60%
+    {Couche} : 4/5 = 80%  {Oeufs} : 3/5 = 60%
+    {Coca, Couche} : 3/5 = 60%
+
+    Coca → Couche [s=60%, c=100%] ✓ (accepté)
+      60% des transactions ont Coca et Couche
+      100% des clients achetant Coca achètent aussi Couche
+    Couche → Coca [s=60%, c=75%] ✓ (accepté)
+
+4.3 DÉFI DE L'EXTRACTION / 挖掘挑战
+-----------------------------------------------------
+  « Un motif long contient un nombre combinatoire de sous-motifs »
+  {a₁, ..., a₁₀₀} contient :
+    C(100,1) + C(100,2) + ... + C(100,100) = 2¹⁰⁰−1 ≈ 1.27×10³⁰
+
+  Solution : miner les itemsets fermés et maximaux
+
+【4.3.1 Itemset Fréquent Fermé / 频繁闭项集】
+
+  Un itemset X est fermé si X est fréquent ET il n'existe aucun
+  super-itemset Y ⊃ X avec le même support que X
+
+  → Compression sans perte / 无损压缩
+
+  Exemple avec minsup = 40% :
+    {Nuts} = 80%, {Coffee} = 100%, {Nuts, Coffee} = 80%
+    → {Nuts} N'EST PAS fermé car {Nuts, Coffee} a le même support (80%)
+
+【4.3.2 Itemset Fréquent Maximal / 最大频繁项集】
+
+  Un itemset X est maximal si X est fréquent ET il n'existe
+  aucun super-itemset fréquent Y ⊃ X
+
+  Exemple avec minsup = 66% :
+    {Coffee, Diaper, Eggs, Milk} — maximal
+    {Nuts, Diaper, Eggs} — maximal
+    {Coffee, Diaper, Eggs} — PAS maximal
+
+4.4 ALGORITHME APRIORI / Apriori算法
+-----------------------------------------------------
+
+【4.4.1 Principe / 原理】
+
+  Propriété de fermeture vers le bas (向下封闭性 / Apriori property) :
+  • Tout sous-ensemble d'un itemset fréquent est fréquent
+    任何频繁项集的子集也是频繁的
+  • Tout sur-ensemble d'un itemset non fréquent est non fréquent
+    任何非频繁项集的超集也非频繁
+
+  Approche par niveau (逐层搜索) :
+    1. Trouver les itemsets fréquents de taille 1 → L1
+    2. Générer les candidats de taille k+1 à partir de Lk
+    3. Scanner la BD pour compter les candidats
+    4. Répéter jusqu'à ce qu'aucun candidat ne soit généré
+
+【4.4.2 Pseudo-Code / 伪代码】
+
+  Ck : Candidate itemset of size k
+  Lk : Frequent itemset of size k
+
+  L1 = {frequent 1-itemsets};
+  for (k = 1; Lk != ∅; k++) {
+      Ck+1 = candidates generated from Lk by joining;
+      for each transaction t in database
+          increment count of all candidates in Ck+1 contained in t;
+      Lk+1 = candidates in Ck+1 with min_support;
+  }
+  return ∪ₖ Lk;
+
+【4.4.3 Exemple Détaillé / 详细示例】
+
+  Database TDB :
+    Tid  Items
+    10   A, C, D
+    20   B, C, E
+    30   A, B, C, E
+    40   B, E
+
+  minsup = 2 (50%)
+
+  Étape 1 — 1er scan, L1 :
+    {A}:2, {B}:3, {C}:3, {D}:1(éliminé), {E}:3
+    L1 = {{A},{B},{C},{E}}
+
+  Étape 2 — génération C2, 2ᵉ scan :
+    C2 = {{A,B},{A,C},{A,E},{B,C},{B,E},{C,E}}
+    {A,B}:1✗, {A,C}:2✓, {A,E}:1✗, {B,C}:2✓, {B,E}:3✓, {C,E}:2✓
+    L2 = {{A,C},{B,C},{B,E},{C,E}}
+
+  Étape 3 — génération C3, 3ᵉ scan :
+    C3 = {{B,C,E}} (la seule combinaison possible)
+    {B,C,E}:2✓
+    L3 = {{B,C,E}}
+
+  Étape 4 — C4 = ∅, stop.
+
+  Itemsets fréquents : tous L1 ∪ L2 ∪ L3
+
+【4.4.4 Améliorations d'Apriori / Apriori优化】
+
+  ① Technique de hachage / 散列技术
+     Hacher les itemsets dans des buckets
+
+  ② Réduction des transactions / 事务压缩
+     Supprimer les transactions sans itemsets fréquents
+
+  ③ Partitionnement / 划分
+     Diviser la BD pour trouver les candidats
+
+  ④ Échantillonnage / 抽样
+     Miner sur un sous-ensemble
+
+  ⑤ Comptage dynamique / 动态项集计数
+     Ajouter des candidats pendant le scan
+
+4.5 GÉNÉRATION DE RÈGLES D'ASSOCIATION / 关联规则生成
+-----------------------------------------------------
+  Pour chaque itemset fréquent l :
+    1. Générer tous les sous-ensembles non vides s de l
+    2. Pour chaque s, générer la règle : s → (l − s)
+    3. Garder si confiance ≥ minconf
+
+  Exemple : l = {I1, I2, I5}, minsup=2
+    Sous-ensembles non vides :
+      {I1, I2}, {I1, I5}, {I2, I5}, {I1}, {I2}, {I5}
+
+    Résultats avec minconf = 70% :
+      I1∧I2 → I5 : conf = 2/4 = 50% ✗
+      I1∧I5 → I2 : conf = 2/2 = 100% ✓
+      I2∧I5 → I1 : conf = 2/2 = 100% ✓
+      I1 → I2∧I5 : conf = 2/6 = 33% ✗
+      I2 → I1∧I5 : conf = 2/7 = 29% ✗
+      I5 → I1∧I2 : conf = 2/2 = 100% ✓
+
+============================================================
+CHAPITRE 4-II : ALGORITHME FP-GROWTH / FP增长算法
+============================================================
+
+4.6 LIMITES D'APRIORI & FP-GROWTH / Apriori的局限与FP-Growth
+-----------------------------------------------------
+Lacunes d'Apriori :
+  • Recherche en largeur d'abord
+  • Génération et test de candidats — souvent très nombreux
+  • Scans répétés de toute la BD — coûteux
+
+FP-Growth (Han, Pei & Yin, SIGMOD'00) :
+  • Évite de générer explicitement des candidats
+  • 无候选集生成
+  • Utilise une structure compacte : FP-tree
+  • Seulement 2 scans de la BD
+
+4.7 CONSTRUCTION DU FP-TREE / FP树构建
+-----------------------------------------------------
+
+Étapes :
+  1. Scanner la BD → fréquences des 1-itemsets
+  2. Trier les items par ordre décroissant de fréquence → F-list
+  3. Scanner à nouveau → construire FP-tree
+
+Exemple détaillé avec minsup = 3 :
+
+  TID  Items achetés (originaux)           (ordered) frequent items
+  100  {f, a, c, d, g, i, m, p}            {c, f, a, m, p}
+  200  {a, b, c, f, l, m, o}               {c, f, a, b, m}
+  300  {b, f, h, j, o, w}                  {f, b}
+  400  {b, c, k, s, p}                     {c, b, p}
+  500  {a, f, c, e, l, p, m, n}            {c, f, a, m, p}
+
+  F-list (décroissant) : c(4) - f(4) - a(3) - b(3) - m(3) - p(3)
+
+  Construction incrémentale du FP-tree :
+  ═══════════════════════════════════════════════════════
+  T100 {c,f,a,m,p} : créer chemin c→f→a→m→p
+  T200 {c,f,a,b,m} : partager c→f→a, créer b→m
+  T300 {f,b}       : créer nouveau chemin f→b
+  T400 {c,b,p}     : partager c, créer b→p
+  T500 {c,f,a,m,p} : suivre chemin existant, incrémenter
+  ═══════════════════════════════════════════════════════
+
+  Structure résultante :
+                    {}
+                    │
+                   c:4
+                  /    \
+               f:1     b:1
+              /          \
+            b:1          p:1
+           /
+         f:3
+        /
+       a:3
+      /    \
+    b:1    m:2
+   /       /
+  m:1    p:2
+
+  Header Table : c→f→a→b→m→p (avec pointeurs vers nœuds)
+
+4.8 GÉNÉRATION DES MOTIFS FRÉQUENTS / 频繁模式生成
+-----------------------------------------------------
+
+  Principe : Diviser et dominer
+    从后缀开始，递归找出频繁模式
+    Extraire les motifs conditionnels en partant de la fin de F-list
+
+  Base de motifs conditionnels (条件模式基) :
+    Item  Base Motif Conditionnel
+    p     {{c, f, a, m:2}, {c, b:1}}
+    m     {{c, f, a:2}, {c, f, a, b:1}}
+    b     {{c, f, a:1}, {f:1}, {c:1}}
+    a     {{c, f:3}}
+    f     {{c:3}}
+
+  Arbre FP conditionnel + Motifs générés :
+    Item  FP-tree cond.  Motifs fréquents générés
+    p     {(c:3)}        {c,p}:3
+    m     {(c:3,f:3,a:3)} {f,m}:3, {c,m}:3, {a,m}:3,
+                          {f,c,m}:3, {f,a,m}:3, {c,a,m}:3,
+                          {f,c,a,m}:3
+    b     φ              —
+    a     {(c:3,f:3)}    {f,a}:3, {c,a}:3, {f,c,a}:3
+    f     {(c:3)}        {f,c}:3
+
+  Résultat — Tous les itemsets fréquents :
+    L1 = {c:4, f:4, a:3, b:3, m:3, p:3}
+    L2 = {{c,p}:3, {f,m}:3, {c,m}:3, {a,m}:3, {f,a}:3,
+          {c,a}:3, {f,c}:3}
+    L3 = {{f,c,m}:3, {f,a,m}:3, {c,a,m}:3, {f,c,a}:3}
+    L4 = {{f,c,a,m}:3}
+
+4.9 AVANTAGES DU FP-TREE / FP树优势
+-----------------------------------------------------
+  • Complétude / 完整性 : conserve toute l'information
+  • Compacité / 紧凑性 :
+    — Items peu fréquents éliminés
+    — Ordre décroissant : items fréquents plus partagés
+    — Jamais plus grand que la BD originale
+  • Pas de génération de candidats / 无候选生成
+  • Pas de scans répétés / 无重复扫描
+
+4.10 ECLAT : FORMAT DE DONNÉES VERTICAL / 垂直数据格式
+-----------------------------------------------------
+  Format horizontal (TID → items) vs Format vertical (item → TID_set)
+
+  Format vertical :
+    Itemset  TID_set
+    I1       {T100, T400, T500, T700, T800, T900}
+    I2       {T100, T200, T300, T400, T600, T800, T900}
+    I3       {T300, T500, T600, T700, T800, T900}
+
+  Pour 2-itemsets, faire l'intersection :
+    t({I1,I2}) = t(I1) ∩ t(I2) = {T100, T400, T800, T900}
+    t({I1,I3}) = t(I1) ∩ t(I3) = {T500, T700, T800, T900}
+
+  Avec minsup=2, continuer pour 3-itemsets :
+    {I1,I2,I3} : {T800, T900} ✓
+    {I1,I2,I5} : {T100, T800} ✓
+
+4.11 MESURES D'INTÉRÊT : LE LIFT / 兴趣度度量：提升度
+-----------------------------------------------------
+  Problème : Support et confiance peuvent être trompeurs
+    支持度和置信度可能误导
+
+  Lift (提升度) :
+
+               P(X ∪ Y)         support(X ∪ Y)
+    lift = ─────────────── = ───────────────────
+            P(X) × P(Y)      support(X) × support(Y)
+
+  Interprétation :
+    • lift > 1 → corrélation positive / 正相关 (co-occurrence)
+    • lift = 1 → indépendants / 独立 (règle inutile)
+    • lift < 1 → corrélation négative / 负相关
+
+  Exemple : Jeux informatiques → Vidéos
+    10,000 transactions : jeux=6000, vidéos=7500, les deux=4000
+    Support = 4000/10000 = 40%
+    Confiance = 4000/6000 = 66.7%
+    P(jeux)=0.60, P(vidéos)=0.75
+    lift = 0.40/(0.60×0.75) = 0.40/0.45 = 0.89 < 1
+    → Corrélation négative ! La règle est trompeuse, car
+      P(vidéos|jeux)=66.7% < P(vidéos)=75% (probabilité globale)
+    → Jouer au basketball ⇒ NE PAS manger des céréales
+      (confiance 33.3% est en fait plus précise)
+
+4.12 SOMMAIRE / 总结
+-----------------------------------------------------
+  • Concepts de base : Support, Confiance, Itemsets fréquents
+  • Apriori : Génération et test de candidats, approche par niveau
+  • FP-Growth : FP-tree, motifs conditionnels, sans candidats
+  • ECLAT : Format vertical, intersections d'ensembles
+  • Mesures d'évaluation : Lift (au-delà de support/confiance)
+
+================================================================================
+  Fin de la Partie 3 — Chapitre 4
+  Suite : Partie 4 — Clustering (CM10) & ACP (CM11)
+================================================================================
